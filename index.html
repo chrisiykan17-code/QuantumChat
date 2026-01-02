@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum-Link V2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* --- CSS STYLES --- */
+        body { background-color: #000; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; height: 100vh; margin: 0; }
+        
+        .phone-app { width: 100%; max-width: 450px; height: 100vh; background-color: #0b141a; display: flex; flex-direction: column; border: 1px solid #333; }
+        
+        .chat-header { background-color: #202c33; padding: 10px 15px; display: flex; align-items: center; color: white; border-bottom: 1px solid #333; }
+        .profile-pic { width: 40px; height: 40px; background: linear-gradient(135deg, #00ff41, #0a8f00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; margin-right: 15px; }
+        
+        /* FIXED BACKGROUND - No more broken image tiles */
+        .chat-area { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            background-color: #0b141a;
+            background-image: radial-gradient(#1f2c33 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .message { max-width: 75%; margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; font-size: 0.95rem; color: #e9edef; position: relative; }
+        .incoming { background-color: #202c33; align-self: flex-start; float: left; clear: both; border-top-left-radius: 0; }
+        .outgoing { background-color: blue; align-self: flex-end; float: right; clear: both; border-top-right-radius: 0; }
+        .key-text { font-family: 'Courier New', monospace; color: #00ff41; font-weight: bold; letter-spacing: 2px; }
+        
+        .input-area { background-color: #202c33; padding: 10px; display: flex; }
+        .btn-generate { width: 100%; background-color: #00a884; color: black; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn-generate:hover { background-color: #008f6f; }
+        .clear { clear: both; }
+    </style>
+</head>
+<body>
+
+<div class="phone-app">
+    <div class="chat-header">
+        <div class="profile-pic">Q</div>
+        <div>
+            <div style="font-weight: bold;">Chris-Net v1</div>
+            <div style="font-size: 0.8rem; color: #00a884;">online</div>
+        </div>
+    </div>
+
+    <div id="chatBox" class="chat-area">
+        <div class="message incoming">
+            System Online. Secure channel established. 🔒
+        </div>
+    </div>
+
+    <div class="input-area">
+        <button id="generateBtn" class="btn-generate">⚡ GENERATE KEY</button>
+    </div>
+</div>
+
+<script>
+    console.log("System Initializing..."); // Look for this in your console!
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const generateBtn = document.getElementById('generateBtn');
+        console.log("Button Found:", generateBtn); // This confirms the button is seen
+
+        if(generateBtn) {
+            generateBtn.addEventListener('click', generateKey);
+        }
+    });
+
+    async function generateKey() {
+        console.log("Button Clicked!"); // This proves you clicked it
+        const chatBox = document.getElementById('chatBox');
+        
+        // 1. Show User Message
+        chatBox.innerHTML += `<div class="message outgoing">Requesting Key...</div><div class="clear"></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight; 
+
+        try {
+            // 2. Call Python Backend
+            const response = await fetch('http://127.0.0.1:5000/get-key');
+            const data = await response.json();
+            
+            // 3. Show Quantum Response
+            chatBox.innerHTML += `
+                <div class="message incoming">
+                    <strong>Success.</strong><br>
+                    Key: <span class="key-text">${data.quantum_key}</span>
+                </div>
+                <div class="clear"></div>`;
+        } catch (error) {
+            console.error("Error connecting to Python:", error);
+            chatBox.innerHTML += `<div class="message incoming" style="border:1px solid red;">❌ Error: Is app.py running?</div><div class="clear"></div>`;
+        }
+        chatBox.scrollTop = chatBox.scrollHeight; 
+    }
+</script>
+
+</body>
+</html>
+ 
